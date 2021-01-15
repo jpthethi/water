@@ -12,16 +12,19 @@ function distribute(slabs,cons){
 
   var villas = cons.map((f,i)=>{return {v:i+1,c:f,pay:0}}).sort((a,b)=>a.c>b.c?1:-1);
 
-  while(Math.floor(totalConsumption)>0 && slabs.length>0){
+  var dist = function(){
+    if (!(Math.floor(totalConsumption)>0 && slabs.length>0)) return;
     var next_villas = villas.filter(v=>v.c>0);
     var consume = next_villas[0].c;
-    if(slabs[0][0]<=0) {console.log("pop slab");slabs.shift();}
+    if(slabs[0][0]<=0) slabs.shift();
     var current_slab = slabs[0];
     var at_rate = current_slab[1];
     if(current_slab[0]/next_villas.length < consume) {consume = slabs[0][0]/next_villas.length;slabs.shift();};
     //console.log("Book " + consume + " for " + next_villas.length + " houses at rate "+ at_rate);
     next_villas.map(v=>{v.c-=consume;totalConsumption-=consume;v.pay+=consume*at_rate;current_slab[0]-=consume});
+    dist();
   }
+  dist();
 
   var dist = villas.sort((a,b)=>a.v-b.v).map(v=>Math.round(v.pay,0));
   console.log("total amount " + dist.reduce(function(a, b){ return a + b;}, 0)) ;
