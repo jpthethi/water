@@ -1,34 +1,36 @@
 function distribute(slabs,cons){
 
   console.log("---------");
+  console.log("slabs " + slabs.map(l=>l[0] + "@Rs." + l[1]));
+  console.log("consumption "+cons);
   var totalConsumption = cons.reduce(function(a, b){
     return a + b;
   }, 0);
   var tot =  slabs.reduce(function(a, b){
     return a + b[0] * b[1];
   }, 0);
-  console.log("consumption "+tot);
+  console.log("total "+totalConsumption);
 
 
   var villas = cons.map((f,i)=>{return {v:i+1,c:f,pay:0}}).sort((a,b)=>a.c>b.c?1:-1);
 
-  var dist = function(){
-    if (!(Math.floor(totalConsumption)>0 && slabs.length>0)) return;
+  var pass = function(n){
+    if (Math.floor(totalConsumption)<=0 || slabs.length==0) return;
     var next_villas = villas.filter(v=>v.c>0);
     var consume = next_villas[0].c;
     if(slabs[0][0]<=0) slabs.shift();
     var current_slab = slabs[0];
     var at_rate = current_slab[1];
     if(current_slab[0]/next_villas.length < consume) {consume = slabs[0][0]/next_villas.length;slabs.shift();};
-    //console.log("Book " + consume + " for " + next_villas.length + " houses at rate "+ at_rate);
+    console.log("Pass "+n+": Book " + consume + " for " + next_villas.length + " houses at rate "+ at_rate);
     next_villas.map(v=>{v.c-=consume;totalConsumption-=consume;v.pay+=consume*at_rate;current_slab[0]-=consume});
-    dist();
+    pass(++n);
   }
-  dist();
+  pass(1);
 
   var dist = villas.sort((a,b)=>a.v-b.v).map(v=>Math.round(v.pay,0));
-  console.log("total amount " + dist.reduce(function(a, b){ return a + b;}, 0)) ;
   console.log(dist.join(","));
+  console.log("total amount " + dist.reduce(function(a, b){ return a + b;}, 0)) ;
   return dist;
 }
 
@@ -52,9 +54,9 @@ var tr = [];
   tr.push(test(slabs,cons,expect));
 }
 {
-  var slabs = [[0,2100],[25,100],[85,100]];
+  var slabs = [[0,2100],[25,100],[85,200]];
   var cons = [10,0,15,20,40];
-  var expect = [1000,0,1500,2000,4000];
+  var expect = [1375,0,2375,3375,7375];
   tr.push(test(slabs,cons,expect));
 }
 {
